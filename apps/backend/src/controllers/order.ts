@@ -1,21 +1,27 @@
 import { Elysia, t } from 'elysia'
 import { prisma, s3 } from '../services'
 
-export const order = new Elysia()
+export const order = new Elysia({ prefix: '/order' })
     .use(s3)
-    .model(
-        'order',
-        t.Object({
+    .model({
+        order: t.Object({
             slip: t.File({
                 type: 'image',
                 maxSize: '5m'
             }),
             menu: t.Array(t.String())
         })
+    })
+    .get('', () => prisma.order.findMany())
+    .get('/id/:id', ({ params: { id } }) =>
+        prisma.order.findFirst({
+            where: {
+                id
+            }
+        })
     )
-    .get('/', () => prisma.order.findMany())
     .put(
-        '/',
+        '',
         async ({ body: { menu, slip: slipImage }, upload }) => {
             const slip = await upload(slipImage)
 
