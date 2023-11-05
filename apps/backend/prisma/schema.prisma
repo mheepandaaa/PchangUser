@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Menu {
+  id        String        @id @default(cuid())
+  title     MenuTitle?
+  price     Int           @db.SmallInt
+  image     String[]      @db.VarChar()
+  option    MenuOption[]
+}
+
+model MenuTitle {
+  menuId    String      @id
+  th        String      @db.VarChar()
+  en        String      @db.VarChar()
+
+  menu      Menu        @relation(fields: [menuId], references: [id])
+}
+
+model MenuOption {
+  id        String              @id @default(cuid())
+  menuId    String              @db.VarChar()
+  actionId  String
+  title     MenuOptionTitle?
+  // Atleast number of n option must be selected, if 0 then is optional
+  required  Int
+
+  menu      Menu                @relation(fields: [menuId], references: [id])
+  action    ActionTemplate      @relation(fields: [actionId], references: [id])
+}
+
+model MenuOptionTitle {
+  menuOptionId  String        @id
+  th            String        @db.VarChar()
+  en            String        @db.VarChar()
+
+  menuOption    MenuOption    @relation(fields: [menuOptionId], references: [id])
+}
+
+model ActionTemplate {
+  id            String          @id @default(cuid())
+  actionIds     String[]
+
+  options       MenuOption[]
+  action        Action[]
+}
+
+model Action {
+  id            String              @id @default(cuid())
+  templateId    String              @db.VarChar()
+  nameTh        String              @db.VarChar()
+  nameEn        String              @db.VarChar()
+  valueTh       String              @db.VarChar()
+  valueEn       String              @db.VarChar()
+
+  option        ActionTemplate     @relation(fields: [templateId], references: [id])
+}
