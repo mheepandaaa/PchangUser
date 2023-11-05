@@ -15,7 +15,10 @@ model Menu {
   title     MenuTitle?
   price     Int           @db.SmallInt
   image     String[]      @db.VarChar()
-  option    MenuOption[]
+  optionId  String
+  option    MenuOption    @relation(fields: [optionId], references: [id])
+
+  order     Order[]
 }
 
 model MenuTitle {
@@ -28,13 +31,12 @@ model MenuTitle {
 
 model MenuOption {
   id        String              @id @default(cuid())
-  menuId    String              @db.VarChar()
   actionId  String
   title     MenuOptionTitle?
   // Atleast number of n option must be selected, if 0 then is optional
   required  Int
 
-  menu      Menu                @relation(fields: [menuId], references: [id])
+  menu      Menu[]
   action    ActionTemplate      @relation(fields: [actionId], references: [id])
 }
 
@@ -63,4 +65,11 @@ model Action {
   valueEn       String              @db.VarChar()
 
   option        ActionTemplate     @relation(fields: [templateId], references: [id])
+}
+
+model Order {
+  id            String              @id @default(cuid())
+  slip          String
+
+  menu          Menu[]
 }

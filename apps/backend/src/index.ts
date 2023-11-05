@@ -1,12 +1,11 @@
 import { Elysia } from 'elysia'
-import { order } from './controllers/order'
-import { action } from './controllers/action'
 import { swagger } from '@elysiajs/swagger'
+
+import { admin } from './controllers'
 
 const app = new Elysia()
     .use(swagger())
-    .use(action)
-    .use(order)
+    .use(admin)
     .get('/', () => 'Hello Elysia')
     .listen(3001)
 
