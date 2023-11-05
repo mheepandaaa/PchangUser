@@ -67,9 +67,18 @@ model Action {
   option        ActionTemplate     @relation(fields: [templateId], references: [id])
 }
 
+enum OrderStatus {
+  review
+  approved
+  wait_for_payment
+  preparing
+  served
+}
+
 model Order {
   id            String              @id @default(cuid())
-  slip          String
+  slip          String?
+  status        OrderStatus         @default(review)
 
   menu          Menu[]
 }
