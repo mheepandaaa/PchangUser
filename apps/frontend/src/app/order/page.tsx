@@ -1,12 +1,41 @@
 'use client'
 
-import { Fragment } from 'react'
+// import { saveAs } from 'file-saver';
+// import QRCode from 'qrcode.react';
+import React, { useState, Fragment } from 'react';
 
 import Link from 'next/link'
 import { useOrder, usePrice } from '@stores/order'
 import { menus } from '@services/data'
 
 const { format } = Intl.NumberFormat('th')
+const [ amount, setAmount ] = useState(1.00);         
+const [ qrCode ,setqrCode ] = useState("sample");
+
+// function handlePhoneNumber(e) {
+//     setPhoneNumber(e.target.value);
+//   }
+//   function handleAmount(e) {
+//     setAmount(parseFloat(e.target.value));
+//   }
+
+//   const downloadQR = () => {
+//     var canvas = document.getElementById("QRcanvas");
+//     canvas.toBlob(function(blob) {
+//       saveAs(blob, "qr-code.png");
+// });
+//   }
+//   function handleQR() {
+//     setqrCode(generatePayload("012-345-6789", { amount }));
+//   }
+
+// function showQr() {
+//     const [showCode, setShowCode] = useState(false);
+  
+//     const showQrBtn = () => {
+//       setShowCode(true);
+//     }; 
+// }
 
 export default function Order() {
     const [orders] = useOrder()
@@ -61,6 +90,20 @@ export default function Order() {
                     )
                 })}
             </section>
+            {/* <>
+      {showQr && (
+        <div className='w-full items-center flex justify-center mt-8'>
+          <div className='qrImg h-56 w-56 items-center flex justify-center'>
+            <QRCode id='QRcanvas' value={qrCode} size={180}/>
+          </div>
+        </div>
+      )}
+
+      <div className='w-full flex items-center justify-center relative'>
+        <img src='/chat-bubble.svg' className='txtbubble h-40 w-64 rotate-180' alt="Chat bubble"></img>
+        <h1 className='absolute top-1/2 text-white font-bold' onClick={downloadQR}>ดาวน์โหลด Qr code</h1>
+      </div>
+    </> */}
             <hr />
             <aside className="flex justify-between items-center text-red-500">
                 <h2>รวมทั้งหมด</h2>
@@ -68,6 +111,7 @@ export default function Order() {
             </aside>
             <footer className="bottom fixed left-0 bottom-0 w-full p-4">
                 <button
+                    // onClick={showQr}
                     className="w-full text-white text-xl bg-red-500 py-3 rounded"
                     type="submit"
                 >

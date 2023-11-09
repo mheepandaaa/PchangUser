@@ -18,7 +18,7 @@ export default function Index() {
         <>
             <main
                 id="catalog"
-                className="grid gap-3 items-start w-full h-screen text-2xl p-3"
+                className="grid gap-3 items-start w-full text-2xl p-3"
             >
                 {menus.map((props) => (
                     <Card key={props.id} {...props} />

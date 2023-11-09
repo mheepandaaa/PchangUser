@@ -14,8 +14,8 @@ export default function Navbar() {
                         พี่ช้าง อาหารตามสั่ง
                     </h1>
                 </Link>
-                <section className="flex justify-end items-center gap-3">
-                    <time className="text-red-500 text-2xl">
+                <section className="flex justify-end items-end gap-3">
+                    <time className="text-red-500 text-md">
                         {15}
                         <sub>min</sub>
                     </time>

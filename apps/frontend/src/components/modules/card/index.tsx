@@ -15,10 +15,10 @@ export default function Card({ id, title, image, price }: CardProps) {
             className="flex flex-col border rounded-lg overflow-hidden shadow shadow-gray-200 hover:shadow-lg focus:shadow-lg hover:-translate-y-1 focus:-translate-y-1 transition-all"
         >
             <figure>
-                <img className="w-full" src={image} alt={title} />
+                <img className="w-full h-36 object-cover" src={image} alt={title} />
             </figure>
             <section className="flex justify-between items-center px-2 py-2">
-                <h3 className="px-1">{title}</h3>
+                <h3 className="px-1 text-base">{title}</h3>
                 <p className="text-sm font-semibold text-white bg-green-600 px-2 py-1 rounded-lg">
                     ฿ {price}
                 </p>
