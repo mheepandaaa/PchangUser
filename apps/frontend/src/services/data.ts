@@ -132,7 +132,7 @@ export const menus: Menu[] = [
                     },
                     {
                         name: 'ไก่',
-                        price: 5
+                        price: 0
                     },
                     {
                         name: 'หมูกรอบ',
@@ -140,30 +140,20 @@ export const menus: Menu[] = [
                     },
                     {
                         name: 'เบค่อน',
-                        price: 0
-                    }
-                ]
-            },
-            {
-                title: 'ระดับความเผ็ด',
-                required: 1,
-                options: [
-                    {
-                        name: 'ไม่เผ็ด',
-                        price: null
+                        price: 5
                     },
                     {
-                        name: 'เผ็ดน้อย',
-                        price: null
+                        name: 'กุ้ง',
+                        price: 10
                     },
                     {
-                        name: 'เผ็ดปกติ',
-                        price: null
+                        name: 'ปลาหมึก',
+                        price: 10
                     },
                     {
-                        name: 'เผ็ดมาก',
-                        price: null
-                    }
+                        name: 'แหนม',
+                        price: 10
+                    },
                 ]
             },
             {
@@ -222,7 +212,7 @@ export const menus: Menu[] = [
                     },
                     {
                         name: 'ไก่',
-                        price: 5
+                        price: 0
                     },
                     {
                         name: 'หมูกรอบ',
@@ -230,8 +220,16 @@ export const menus: Menu[] = [
                     },
                     {
                         name: 'เบค่อน',
-                        price: 0
-                    }
+                        price: 5
+                    },
+                    {
+                        name: 'กุ้ง',
+                        price: 10
+                    },
+                    {
+                        name: 'ปลาหมึก',
+                        price: 10
+                    },
                 ]
             },
             {

@@ -9,8 +9,8 @@ import { useOrder, usePrice } from '@stores/order'
 import { menus } from '@services/data'
 
 const { format } = Intl.NumberFormat('th')
-const [ amount, setAmount ] = useState(1.00);         
-const [ qrCode ,setqrCode ] = useState("sample");
+// const [ amount, setAmount ] = useState(1.00);         
+// const [ qrCode ,setqrCode ] = useState("sample");
 
 // function handlePhoneNumber(e) {
 //     setPhoneNumber(e.target.value);
@@ -45,7 +45,7 @@ export default function Order() {
         <main className="flex flex-col gap-2 p-4 pb-24">
             <header className="flex justify-between items-center">
                 <h1 className="text-2xl text-gray-700">สรุปยอด</h1>
-                <Link href="/">เพิ่มออเดอร์ &gt;</Link>
+                <Link className='text-red-500' href="/">เพิ่มออเดอร์ &gt;</Link>
             </header>
             <section className="flex flex-col gap-3 my-4">
                 {orders.map(({ id, total, options, detail }, index) => {
@@ -82,7 +82,7 @@ export default function Order() {
                                         แก้ไข
                                     </Link>
                                 </header>
-                                <p className="flex flex-1 justify-end font-light text-gray-500">
+                                <p className="flex flex-1 justify-end font-light text-gray-700">
                                     ฿ {format(prices[index])}
                                 </p>
                             </article>
