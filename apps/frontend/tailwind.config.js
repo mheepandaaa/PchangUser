@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  daisyui: {
+    themes: ["light"],
+  },
   darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
@@ -17,6 +20,8 @@ module.exports = {
     },
     extend: {
       colors: {
+        coral: '#FF5959',
+        statusbg: '#FFE6E5',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -73,4 +78,5 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
+  plugins: [require("daisyui")],
 }

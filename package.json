@@ -1,4 +1,11 @@
 {
+  "name": "chang",
+  "devDependencies": {
+    "eslint": "^8.48.0",
+    "prettier": "^3.0.3",
+    "turbo": "latest"
+  },
+  "packageManager": "bun@1.0.5",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -6,16 +13,18 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
-  "devDependencies": {
-    "eslint": "^8.48.0",
-    "prettier": "^3.0.3",
-    "tsconfig": "*",
-    "turbo": "latest"
-  },
   "name": "chang",
   "packageManager": "bun@1.0.5",
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.0.5",
+    "axios": "^1.6.7",
+    "daisyui": "latest",
+    "file-saver": "^2.0.5",
+    "promptpay-qr": "^0.5.0",
+    "qrcode.react": "^3.1.0"
+  }
 }

@@ -12,7 +12,7 @@ export default function ViewOrder() {
     if (price <= 0) return null
 
     return (
-        <footer className="bottom fixed left-0 bottom-0 w-full p-4">
+        <footer className="bottom sticky left-0 bottom-0 w-full p-4 bg-white border-t-2 border-gray-300">
             <Link
                 href="/order"
                 className="flex justify-center items-center w-full text-white text-xl bg-red-500 py-3 rounded"
