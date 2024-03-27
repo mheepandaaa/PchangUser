@@ -17,7 +17,10 @@ const generatePayload = require('promptpay-qr');
 let orderId: string | number;
 
 const orderIdsAtom = atomWithStorage<(string | number)[]>('orderIds', []);
-
+export function useOrderIds() {
+    const [orderIds, setOrderIds] = useAtom(orderIdsAtom);
+    return { orderIds };
+  }
 export default function Order() {
 
     const [orderIds, setOrderIds] = useAtom(orderIdsAtom);
@@ -119,16 +122,6 @@ export default function Order() {
         }
     }
 
-    const handleConfirmOrder = async () => {
-        try {
-            await handleOrder(orders);
-            router.push('/status');
-            console.log('gogogo')
-        } catch (e) {
-            console.error(e);
-            alert("Error processing order. Please check the console for more details.");
-        }
-    }
 
     return (
         <main className="flex flex-col gap-2 p-4 pb-24">
@@ -197,21 +190,10 @@ export default function Order() {
                 </div>
             </div>
             <footer className="bottom fixed left-0 bottom-0 w-full bg-white p-4">
-                <button
-                    ref={paymentButtonRef}
-                    className="btn w-full text-white bg-coral py-3 rounded"
-                    onClick={handleConfirmOrder}
-                >
-                    ชำระเงิน - ฿ {format(total)}
-                </button>
-                {/* <input
-                    ref={imageUploaderRef}
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    multiple
-                /> */}
+            <label className="btn w-full text-white bg-coral py-3 rounded" for="imageUpload">
+  ส่งสลิปการชำระ
+</label>
+<input id="imageUpload" type="file" accept="image/*" onChange={handleImageUpload} style={{display: 'none'}} />
             </footer>
         </main>
     )

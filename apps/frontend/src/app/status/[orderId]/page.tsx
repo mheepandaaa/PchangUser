@@ -6,14 +6,33 @@ import Link from 'next/link'
 import { useOrder, usePrice, orderAtom } from '@stores/order'
 import { menus } from '@services/data'
 import { useResetAtom } from 'jotai/utils';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
+import axios from 'axios';
 
 
 const { format } = Intl.NumberFormat('th')
 
-export default function Status() {
 
+
+export default function Status() {
+    const { orderId } = useParams();
+    const [order, setOrder] = useState([])
+    const fetchOrder = async () => {
+        try {
+            const response = await axios.get(`http://localhost:3001/getOrderById/${orderId}`);
+            setOrder(response.data);
+        } catch (error) {
+            console.error('Error fetching order:', error);
+            return [];
+        }
+      };
+    useEffect(() => {
+        fetchOrder()
+        // console.log(orderId)
+        console.log(order)
+    },[])
+    
     const [status, setStatus] = useState('pending');
 
     // const updateOrderStatus = (approved) => {
@@ -21,7 +40,6 @@ export default function Status() {
     // };
 
     const [total, prices] = usePrice()
-
     const router = useRouter()
     const resetOrders = useResetAtom(orderAtom);
     const [orders, setOrders] = useState(useAtom(orderAtom)[0]);
@@ -31,11 +49,11 @@ export default function Status() {
         console.log('Orders data has been reset in the browser storage.');
     };
 
-    useEffect(() => {
-        if (orders.length === 0) {
-            router.push('/home');
-        }
-    }, [orders, router]);
+    // useEffect(() => {
+    //     if (orders.length === 0) {
+    //         router.push('/home');
+    //     }
+    // }, [orders, router]);
 
 
     return (
@@ -144,7 +162,7 @@ export default function Status() {
                 <button
                     className="btn w-full text-white text-md bg-coral py-3 rounded mb-2"
                     disabled={false}
-                    onClick={() => router.push('/order')}
+                    onClick={() => router.push('/payment')}
                 >
                     ชำระเงิน - ฿ {format(total)}
                 </button>

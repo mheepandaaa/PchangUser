@@ -17,7 +17,10 @@ const generatePayload = require('promptpay-qr');
 let orderId: string | number;
 
 const orderIdsAtom = atomWithStorage<(string | number)[]>('orderIds', []);
-
+export function useOrderIds() {
+    const [orderIds, setOrderIds] = useAtom(orderIdsAtom);
+    return { orderIds };
+  }
 export default function Order() {
 
     const [orderIds, setOrderIds] = useAtom(orderIdsAtom);
@@ -122,7 +125,7 @@ export default function Order() {
     const handleConfirmOrder = async () => {
         try {
             await handleOrder(orders);
-            router.push('/status');
+            router.replace(`/status/${orderId}`);
             console.log('gogogo')
         } catch (e) {
             console.error(e);
@@ -184,18 +187,7 @@ export default function Order() {
                     <p>฿ {format(total)}</p>
                 </aside>
             </section>
-            <div className='payment'>
-                <div className='w-full flex flex-col justify-center items-center mt-8'>
-                    <img src="/icons/promptpay.svg" alt="PromptPay logo" className="w-24 mb-2" />
-                    <div className='qr-code-container h-56 w-56 items-center flex justify-center' style={{ backgroundImage: `url(/icons/cornerBorder.svg)`, backgroundSize: 'cover' }}>
-                        <QRCode id='QRcanvas' value={qrCode} size={180} />
-                    </div>
-                </div>
-                <div className='w-full flex items-center justify-center relative' onClick={downloadQR}>
-                    <img src='/icons/chat-bubble.svg' className='txtbubble h-32 w-56 rotate-180' alt="Chat bubble"></img>
-                    <h1 className='absolute top-1/2 text-white font-bold'>ดาวน์โหลด Qr code</h1>
-                </div>
-            </div>
+            
             <footer className="bottom fixed left-0 bottom-0 w-full bg-white p-4">
                 <button
                     ref={paymentButtonRef}
