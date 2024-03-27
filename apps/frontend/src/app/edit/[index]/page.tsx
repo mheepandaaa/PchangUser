@@ -56,7 +56,7 @@ export default function Page({
     const order = orders[numericIndex]
     if (!order) return null
 
-    const menu = menus.find((menu) => menu.id === order.id)
+    const menu = menus.find((menu) => menu.id == order.id)
     if (!menu) return null
 
     const { title, image, options } = menu
@@ -154,12 +154,20 @@ export default function Page({
                                         className="flex justify-between w-full text-base text-gray-700 font-light"
                                     >
                                         {name}
-                                        {price !== null && (
-                                            <p className="flex flex-1 justify-end items-end font-light gap-1">
-                                                <span className="text-xs text-gray-400 font-light">
-                                                    ฿
-                                                </span>
-                                                {price}
+                                        {price !== null && (<p className="flex flex-1 justify-end items-baseline font-light gap-1"> <span className="text-xs text-gray-400 font-light"> ฿ </span> {price} </p>)}
+                                        {name === "เผ็ดน้อย" && price === null && (
+                                            <p className="flex flex-1 justify-end items-baseline font-light gap-1">
+                                                🌶️
+                                            </p>
+                                        )}
+                                        {name === "เผ็ดปกติ" && price === null && (
+                                            <p className="flex flex-1 justify-end items-baseline font-light gap-1">
+                                                🌶️🌶️
+                                            </p>
+                                        )}
+                                        {name === "เผ็ดมาก" && price === null && (
+                                            <p className="flex flex-1 justify-end items-baseline font-light gap-1">
+                                                🌶️🌶️🌶️
                                             </p>
                                         )}
                                     </Label>
@@ -172,7 +180,7 @@ export default function Page({
             <aside className="flex flex-col px-4 py-4 border-b-4 gap-2">
                 <header className="flex items-center gap-2.5">
                     <h2 className="flex gap-2 text-lg text-gray-700">
-                        {title}
+                        เพิ่มเติม
                     </h2>
                     <p className="text-gray-400 text-sm font-light">optional</p>
                 </header>

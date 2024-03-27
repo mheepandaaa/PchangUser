@@ -15,7 +15,7 @@ export default function ViewOrder() {
         <footer className="bottom sticky left-0 bottom-0 w-full p-4 bg-white border-t-2 border-gray-300">
             <Link
                 href="/order"
-                className="flex justify-center items-center w-full text-white text-xl bg-red-500 py-3 rounded"
+                className="btn flex w-full text-white bg-coral py-3"
             >
                 ชำระเงิน - {format(price)} ฿
             </Link>

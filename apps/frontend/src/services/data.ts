@@ -12,32 +12,37 @@ interface MenuOptions {
 }
 
 export interface Menu {
-  id: string;
+  id: number;
   title: string;
   price: number;
   image: string;
   options: MenuOptions[];
 }
 
-// let menuDataCache: Menu[] | null = null;
+export interface Order {
+    menu_id: number;
+    meat: string;
+    spicy: string;
+    extra: boolean;
+    egg: string;
+    optional_text: string;
+    container: string;
+  }
 
-// export const fetchMenus = async (): Promise<Menu[]> => {
-//   if (menuDataCache) {
-//     return menuDataCache;
-//   }
+export const fetchMenus = async () => {
+    try {
+        const response = await axios.get<Menu[]>('http://localhost:3001/getMenuWithOptionals/');
+        return response.data.menus;
+    } catch (error) {
+        console.error('Error fetching menus:', error);
+        return [];
+    }
+  };
 
-//   try {
-//     const response = await axios.get<Menu[]>(`http://localhost:3001/getMenuWithOptionals/`);
-//     menuDataCache = response.data;
-//     return menuDataCache;
-//   } catch (error) {
-//     throw new Error(`Failed to fetch menu data: ${error}`);
-//   }
-// };
 
 export const menus: Menu[] = [
     {
-            "id": "1",
+            "id": 1,
             "title": "กระเพรา",
             "image": "https://pchangproject.s3.amazonaws.com/IMG_20230710_121725.jpg",
             "price": 45,
@@ -78,19 +83,19 @@ export const menus: Menu[] = [
                     "options": [
                         {
                             "name": "ไม่เผ็ด",
-                            "price": 0
+                            "price": null
                         },
                         {
                             "name": "เผ็ดน้อย",
-                            "price": 0
+                            "price": null
                         },
                         {
                             "name": "เผ็ดปกติ",
-                            "price": 0
+                            "price": null
                         },
                         {
                             "name": "เผ็ดมาก",
-                            "price": 0
+                            "price": null
                         }
                     ]
                 },
@@ -125,7 +130,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "2",
+            "id": 2,
             "title": "ข้าวผัด",
             "image": "https://pchangproject.s3.amazonaws.com/IMG_20230710_121622.jpg",
             "price": 30,
@@ -153,7 +158,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "3",
+            "id": 3,
             "title": "ข้าวผัดแหนม",
             "image": "https://pchangproject.s3.amazonaws.com/sourpork-firedrice.jpg",
             "price": 40,
@@ -181,7 +186,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "4",
+            "id": 4,
             "title": "ผัดพริกเผา",
             "image": "https://pchangproject.s3.amazonaws.com/prikpow.jpg",
             "price": 40,
@@ -209,7 +214,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "5",
+            "id": 5,
             "title": "ผัดพริกแกง",
             "image": "https://pchangproject.s3.amazonaws.com/prikgang.jpg",
             "price": 40,
@@ -237,7 +242,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "6",
+            "id": 6,
             "title": "ราดหน้า",
             "image": "https://pchangproject.s3.amazonaws.com/radnha.jpg",
             "price": 40,
@@ -265,7 +270,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "7",
+            "id": 7,
             "title": "ซีอิ๊ว",
             "image": "https://pchangproject.s3.amazonaws.com/si-ew.jpg",
             "price": 40,
@@ -293,7 +298,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "8",
+            "id": 8,
             "title": "กะเพราคลุกข้าว",
             "image": "https://pchangproject.s3.amazonaws.com/krapowkluk.jpg",
             "price": 40,
@@ -321,7 +326,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "9",
+            "id": 9,
             "title": "ข้าวต้มทรงเครื่อง",
             "image": "https://pchangproject.s3.amazonaws.com/ricePorridge.jpg",
             "price": 40,
@@ -349,7 +354,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "10",
+            "id": 10,
             "title": "ผัดผงกะหรี่",
             "image": "https://pchangproject.s3.amazonaws.com/padkraree.jpg",
             "price": 45,
@@ -377,7 +382,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "11",
+            "id": 11,
             "title": "มาม่าผัดไข่",
             "image": "https://pchangproject.s3.amazonaws.com/mamapadkai.jpg",
             "price": 40,
@@ -405,7 +410,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "12",
+            "id": 12,
             "title": "มาม่าผัดขี้เมา",
             "image": "https://pchangproject.s3.amazonaws.com/IMG_20230710_123302.jpg",
             "price": 40,
@@ -433,7 +438,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "13",
+            "id": 13,
             "title": "ผัดน้ำมันหอย",
             "image": "https://pchangproject.s3.amazonaws.com/padOysterSauce.jpg",
             "price": 40,
@@ -461,7 +466,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "14",
+            "id": 14,
             "title": "ผัดกระเทียม",
             "image": "https://pchangproject.s3.amazonaws.com/padgarlic.jpg",
             "price": 40,
@@ -489,7 +494,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "15",
+            "id": 15,
             "title": "สุกี้น้ำ/แห้ง",
             "image": "https://pchangproject.s3.amazonaws.com/IMG_20230710_122957.jpg",
             "price": 40,
@@ -517,7 +522,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "16",
+            "id": 16,
             "title": "มักกะโรนีผัดซอส",
             "image": "https://pchangproject.s3.amazonaws.com/maccaroni.jpg",
             "price": 40,
@@ -545,7 +550,7 @@ export const menus: Menu[] = [
             ]
         },
         {
-            "id": "17",
+            "id": 17,
             "title": "สปาเก็ตตี้ราดซอส",
             "image": "https://pchangproject.s3.amazonaws.com/spagetti.jpg",
             "price": 40,

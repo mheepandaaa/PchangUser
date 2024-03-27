@@ -1,6 +1,7 @@
 import { type Menu, menus } from '@services/data'
+import { order } from 'backend/src/controllers/order'
 import { atom, useAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
+import { atomWithStorage, useResetAtom } from 'jotai/utils'
 
 interface OrderOptions {
     name: string
@@ -8,13 +9,13 @@ interface OrderOptions {
 }
 
 interface Order {
-    id: string
+    id: number
     total: number
     options: OrderOptions[]
     detail?: string
 }
 
-const orderAtom = atomWithStorage<Order[]>('orders', [])
+export const orderAtom = atomWithStorage<Order[]>('orders', [])
 
 export const useOrder = () => useAtom(orderAtom)
 
@@ -50,7 +51,7 @@ const priceAtom = atom((get) => {
 
     const priceByOrders = orders
         .map((order) => ({
-            menu: menus.find((menu) => menu.id === order.id),
+            menu: menus.find((menu) => menu.id == order.id),
             order
         }))
         .filter(({ menu }) => menu)
