@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useContext, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -9,6 +9,7 @@ import { Label } from '@shadcn/components/ui/label'
 
 import { menus } from '@services/data'
 import { calculatePrice, useOrder } from '@stores/order'
+import { OrderContext } from '@app/home/OrderContext/page'
 
 const { format } = Intl.NumberFormat('th')
 
@@ -21,7 +22,7 @@ export default function Page({
 }) {
     const router = useRouter()
     const [orders, setOrders] = useOrder()
-
+    const { queueData } = useContext(OrderContext);
     const [total, setTotal] = useState(1)
     const [detail, setDetail] = useState('')
     const [userOptions, setUserOptions] = useState<{
@@ -57,6 +58,13 @@ export default function Page({
         order
     })
 
+    const orderOption = queueData.find((orderOption) => orderOption.id == id);
+    console.log('options:', options);
+    console.log('queueData:', queueData);
+    const [spicy, setSpicy] = useState(orderOption?.spicy || '');
+    console.log('spicy:', spicy);
+    const spicyOptions = options.find(option => option.title === 'ระดับความเผ็ด')?.options;
+    console.log('spicyOptions:', spicyOptions);
     return (
         <form
             className="flex flex-col"
@@ -103,64 +111,105 @@ export default function Page({
                 </section>
             </header>
             {options.map(({ title, required, options }) => (
-                <section
-                    key={title}
-                    className="flex flex-col px-4 py-4 border-b-4"
-                >
+                <section key={title} className="flex flex-col px-4 py-4 border-b-4">
                     <header className="flex items-center gap-2.5">
-                        <h2 className="flex gap-2 text-lg text-gray-700">
-                            {title}
-                        </h2>
+                        <h2 className="flex gap-2 text-lg text-gray-700">{title}</h2>
                         <p className="text-gray-400 text-sm font-light">
                             {required === 0 ? 'optional' : 'required, select 1'}
                         </p>
                     </header>
-                    <RadioGroup
-                        className="mt-2"
-                        required={required > 0}
-                        onValueChange={(value) => {
-                            setUserOptions({
-                                ...userOptions,
-                                [title]: value
-                            })
-                        }}
-                    >
-                        {options.map(({ name, price }, index) => (
-                            <Fragment key={name}>
-                                {index !== 0 && (
-                                    <div className="w-full h-[1px] bg-gray-200" />
-                                )}
-                                <section className="flex items-center gap-2 py-0.5">
-                                    <RadioGroupItem
-                                        value={name}
-                                        id={`option-${title}-${name}`}
-                                    />
-                                    <Label
-                                        htmlFor={`option-${title}-${name}`}
-                                        className="flex justify-between w-full text-base text-gray-700 font-light"
-                                    >
-                                        {name}
-                                        {price !== null && (<p className="flex flex-1 justify-end items-baseline font-light gap-1"> <span className="text-xs text-gray-400 font-light"> ฿ </span> {price} </p>)}
-                                        {name === "เผ็ดน้อย" && price === null && (
-                                            <p className="flex flex-1 justify-end items-baseline font-light gap-1">
-                                                🌶️
-                                            </p>
-                                        )}
-                                        {name === "เผ็ดปกติ" && price === null && (
-                                            <p className="flex flex-1 justify-end items-baseline font-light gap-1">
-                                                🌶️🌶️
-                                            </p>
-                                        )}
-                                        {name === "เผ็ดมาก" && price === null && (
-                                            <p className="flex flex-1 justify-end items-baseline font-light gap-1">
-                                                🌶️🌶️🌶️
-                                            </p>
-                                        )}
-                                    </Label>
-                                </section>
-                            </Fragment>
-                        ))}
-                    </RadioGroup>
+                    {title === 'ระดับความเผ็ด' && spicyOptions && (
+                        <RadioGroup
+                            className="mt-2"
+                            required={required > 0}
+                            value={spicy} // Set the initial value here
+                            onValueChange={(value) => setSpicy(value)}
+                        >
+                            {spicyOptions.map(({ name, price }, index) => (
+                                <Fragment key={name}>
+                                    {index !== 0 && (
+                                        <div className="w-full h-[1px] bg-gray-200" />
+                                    )}
+                                    <section className="flex items-center gap-2 py-0.5">
+                                        <RadioGroupItem
+                                            value={name}
+                                            id={`option-${title}-${name}`}
+                                        />
+                                        <Label
+                                            htmlFor={`option-${title}-${name}`}
+                                            className="flex justify-between w-full text-base text-gray-700 font-light"
+                                        >
+                                            {name}
+                                            {price !== null && (<p className="flex flex-1 justify-end items-baseline font-light gap-1"> <span className="text-xs text-gray-400 font-light"> ฿ </span> {price} </p>)}
+                                            {name === "เผ็ดน้อย" && price === null && (
+                                                <p className="flex flex-1 justify-end items-baseline font-light gap-1">
+                                                    🌶️
+                                                </p>
+                                            )}
+                                            {name === "เผ็ดปกติ" && price === null && (
+                                                <p className="flex flex-1 justify-end items-baseline font-light gap-1">
+                                                    🌶️🌶️
+                                                </p>
+                                            )}
+                                            {name === "เผ็ดมาก" && price === null && (
+                                                <p className="flex flex-1 justify-end items-baseline font-light gap-1">
+                                                    🌶️🌶️🌶️
+                                                </p>
+                                            )}
+                                        </Label>
+                                    </section>
+                                </Fragment>
+                            ))}
+                        </RadioGroup>
+                    )}
+                    {title !== 'ระดับความเผ็ด' && (
+                        <RadioGroup
+                            className="mt-2"
+                            required={required > 0}
+                            onValueChange={(value) => {
+                                setUserOptions({
+                                    ...userOptions,
+                                    [title]: value,
+                                });
+                            }}
+                        >
+                            {options.map(({ name, price }, index) => (
+                                <Fragment key={name}>
+                                    {index !== 0 && (
+                                        <div className="w-full h-[1px] bg-gray-200" />
+                                    )}
+                                    <section className="flex items-center gap-2 py-0.5">
+                                        <RadioGroupItem
+                                            value={name}
+                                            id={`option-${title}-${name}`}
+                                        />
+                                        <Label
+                                            htmlFor={`option-${title}-${name}`}
+                                            className="flex justify-between w-full text-base text-gray-700 font-light"
+                                        >
+                                            {name}
+                                            {price !== null && (<p className="flex flex-1 justify-end items-baseline font-light gap-1"> <span className="text-xs text-gray-400 font-light"> ฿ </span> {price} </p>)}
+                                            {name === "เผ็ดน้อย" && price === null && (
+                                                <p className="flex flex-1 justify-end items-baseline font-light gap-1">
+                                                    🌶️
+                                                </p>
+                                            )}
+                                            {name === "เผ็ดปกติ" && price === null && (
+                                                <p className="flex flex-1 justify-end items-baseline font-light gap-1">
+                                                    🌶️🌶️
+                                                </p>
+                                            )}
+                                            {name === "เผ็ดมาก" && price === null && (
+                                                <p className="flex flex-1 justify-end items-baseline font-light gap-1">
+                                                    🌶️🌶️🌶️
+                                                </p>
+                                            )}
+                                        </Label>
+                                    </section>
+                                </Fragment>
+                            ))}
+                        </RadioGroup>
+                    )}
                 </section>
             ))}
             <aside className="flex flex-col px-4 py-4 border-b-4 gap-2">

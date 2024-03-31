@@ -2,7 +2,7 @@
 
 import { saveAs } from 'file-saver';
 import QRCode from 'qrcode.react';
-import React, { useRef, useState, Fragment } from 'react';
+import React, { useRef, useState, Fragment, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
 
 import Link from 'next/link'
@@ -10,6 +10,7 @@ import { useOrder, usePrice } from '@stores/order'
 import { menus } from '@services/data'
 import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
+import { json } from 'stream/consumers';
 
 
 const { format } = Intl.NumberFormat('th')
@@ -20,7 +21,7 @@ const orderIdsAtom = atomWithStorage<(string | number)[]>('orderIds', []);
 export function useOrderIds() {
     const [orderIds, setOrderIds] = useAtom(orderIdsAtom);
     return { orderIds };
-  }
+}
 export default function Order() {
 
     const [orderIds, setOrderIds] = useAtom(orderIdsAtom);
@@ -36,9 +37,6 @@ export default function Order() {
     function handleAmount(e: React.ChangeEvent<HTMLInputElement>) {
         setAmount(parseFloat(e.target.value));
     }
-    function handleQR() {
-        setqrCode(generatePayload("012-345-6789", { amount: total }));
-    }
 
     const downloadQR = () => {
         const canvas = document.getElementById("QRcanvas") as HTMLCanvasElement | null;
@@ -49,6 +47,7 @@ export default function Order() {
         }
     };
 
+
     const router = useRouter()
     const [orders] = useOrder()
     const [total, prices] = usePrice()
@@ -57,28 +56,49 @@ export default function Order() {
     const paymentButtonRef = useRef<HTMLButtonElement>(null);
     const imageUploaderRef = useRef<HTMLInputElement>(null);
 
-    const handleImageUpload = () => {
+    function handleQR() {
+        setqrCode(generatePayload("081-647-2217", { amount: total }));
+    }
+    useEffect(() => {
+        handleQR();
+    }, [total]);
+    const handleImageUpload = async () => {
         const selectedFiles = imageUploaderRef.current?.files;
         if (!selectedFiles || !selectedFiles.length) {
             // Handle the case where no files were selected
             return;
         }
-
-        // Perform image upload logic here
-        // ... Handle file uploads (using Next.js API routes, etc.)
-        // ... Validate and process uploaded images
-        let uploadSuccessful = false;
-        if (uploadSuccessful) {
-
-        } else {
-            // Handle upload errors, reset button state
-            if (paymentButtonRef.current) {
-                paymentButtonRef.current.textContent = 'ชำระเงิน - ฿ {format(total)}';
-                paymentButtonRef.current.disabled = false;
-                setHasPaymentBeenProcessed(false);
+    
+        const formData = new FormData();
+        formData.append("image", selectedFiles[0]);
+    
+        // Send the image to the server using a fetch API call
+        fetch("http://localhost:3001/upload", {
+            method: "POST",
+            body: formData,
+        })
+        .then(async (response) => {
+            if (response.ok) {
+                const imgURL = await response.json()
+                fetch("http://localhost:3001/addPayment",{
+                    method : "POST",
+                    body : JSON.stringify({
+                        order_id : orderId , 
+                        payment_picture : imgURL ,
+                        total_price : [total]
+                    })
+                })
+                // Navigate to the status page after the image is uploaded
+                router.push('/status')
+            } else {
+                // Handle the error case where the image upload failed
+                console.error("Image upload failed", response.statusText);
             }
-            // Provide user feedback about the error
-        }
+        })
+        .catch((error) => {
+            // Handle any errors that occurred during the fetch API call
+            console.error("Failed to upload image", error);
+        });
     };
 
     const handleOrder = async (OrderData: any[]) => {
@@ -190,10 +210,10 @@ export default function Order() {
                 </div>
             </div>
             <footer className="bottom fixed left-0 bottom-0 w-full bg-white p-4">
-            <label className="btn w-full text-white bg-coral py-3 rounded" for="imageUpload">
-  ส่งสลิปการชำระ
-</label>
-<input id="imageUpload" type="file" accept="image/*" onChange={handleImageUpload} style={{display: 'none'}} />
+                <label className="btn w-full text-white bg-coral py-3 rounded" htmlFor="imageUpload">
+                    ส่งสลิปการชำระ
+                </label>
+                <input id="imageUpload" type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
             </footer>
         </main>
     )

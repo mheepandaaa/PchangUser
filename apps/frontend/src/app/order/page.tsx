@@ -2,7 +2,7 @@
 
 import { saveAs } from 'file-saver';
 import QRCode from 'qrcode.react';
-import React, { useRef, useState, Fragment } from 'react';
+import React, { useRef, useState, Fragment, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
 
 import Link from 'next/link'
@@ -10,7 +10,6 @@ import { useOrder, usePrice } from '@stores/order'
 import { menus } from '@services/data'
 import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-
 
 const { format } = Intl.NumberFormat('th')
 const generatePayload = require('promptpay-qr');
@@ -20,25 +19,12 @@ const orderIdsAtom = atomWithStorage<(string | number)[]>('orderIds', []);
 export function useOrderIds() {
     const [orderIds, setOrderIds] = useAtom(orderIdsAtom);
     return { orderIds };
-  }
+}
 export default function Order() {
 
     const [orderIds, setOrderIds] = useAtom(orderIdsAtom);
-    const [phoneNumber, setPhoneNumber] = useState("012-345-6789");
-    const [amount, setAmount] = useState(0);
     const [qrCode, setqrCode] = useState("sample");
     const [ordersdata, setOrdersData] = useState([]);
-
-    function handlePhoneNumber(e: React.ChangeEvent<HTMLInputElement>) {
-        setPhoneNumber(e.target.value);
-    }
-
-    function handleAmount(e: React.ChangeEvent<HTMLInputElement>) {
-        setAmount(parseFloat(e.target.value));
-    }
-    function handleQR() {
-        setqrCode(generatePayload("012-345-6789", { amount: total }));
-    }
 
     const downloadQR = () => {
         const canvas = document.getElementById("QRcanvas") as HTMLCanvasElement | null;
@@ -53,33 +39,94 @@ export default function Order() {
     const [orders] = useOrder()
     const [total, prices] = usePrice()
 
-    const [hasPaymentBeenProcessed, setHasPaymentBeenProcessed] = useState(false);
-    const paymentButtonRef = useRef<HTMLButtonElement>(null);
-    const imageUploaderRef = useRef<HTMLInputElement>(null);
+    const [file, setFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-    const handleImageUpload = () => {
-        const selectedFiles = imageUploaderRef.current?.files;
-        if (!selectedFiles || !selectedFiles.length) {
-            // Handle the case where no files were selected
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const selectedFile = e.target.files[0];
+            setFile(selectedFile);
+
+            // Create a temporary URL for the selected file
+            const objectUrl = URL.createObjectURL(selectedFile);
+            setPreviewUrl(objectUrl);
+        } else {
+            setFile(null);
+            setPreviewUrl(null);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if (!file) {
+            alert('Please select an image to upload');
             return;
         }
 
-        // Perform image upload logic here
-        // ... Handle file uploads (using Next.js API routes, etc.)
-        // ... Validate and process uploaded images
-        let uploadSuccessful = false;
-        if (uploadSuccessful) {
+        const formData = new FormData();
+        formData.append('file', file);
 
-        } else {
-            // Handle upload errors, reset button state
-            if (paymentButtonRef.current) {
-                paymentButtonRef.current.textContent = 'ชำระเงิน - ฿ {format(total)}';
-                paymentButtonRef.current.disabled = false;
-                setHasPaymentBeenProcessed(false);
+        try {
+            const response = await fetch('http://localhost:3001/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                // Check if the response is an HTML document
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('text/html')) {
+                    const errorText = await response.text();
+                    console.error('Error uploading file:', errorText);
+                    alert('An error occurred while uploading the file');
+                } else {
+                    // Handle other non-JSON responses
+                    console.error('Error uploading file:', response.statusText);
+                    alert(`Error uploading file: ${response.statusText}`);
+                }
+                return;
             }
-            // Provide user feedback about the error
+
+            const data = await response.json();
+            const { fileUrl } = data;
+            console.log('Uploaded file URL:', fileUrl);
+
+            if (response.ok) {
+                const { fileUrl } = data;
+                console.log('Uploaded file URL:', fileUrl);
+                fetch("http://localhost:3001/addPayment", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            order_id: orderId,
+                            payment_picture: fileUrl,
+                            total_price: [total]
+                        })
+                    })
+                    // router.replace(`/status/${orderId}`)
+            } else {
+                console.error('Error uploading file:', data.error);
+            }
+        } catch (err) {
+            console.error('Error uploading file:', err);
         }
     };
+
+    // Clean up the temporary URL when the component unmounts
+    React.useEffect(() => {
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
+
+    function handleQR() {
+        setqrCode(generatePayload("012-345-6789", { amount: total }));
+    }
+    useEffect(() => {
+        handleQR();
+    }, [total]);
 
     const handleOrder = async (OrderData: any[]) => {
         const output = OrderData.map(data => {
@@ -134,7 +181,7 @@ export default function Order() {
     }
 
     return (
-        <main className="flex flex-col gap-2 p-4 pb-24">
+        <main className="flex flex-col gap-2 p-4">
             <header className="flex justify-between items-center">
                 <h1 className="text-2xl text-gray-700">สรุปยอด</h1>
                 <Link className='text-coral' href="/home">เพิ่มออเดอร์ &gt;</Link>
@@ -187,24 +234,46 @@ export default function Order() {
                     <p>฿ {format(total)}</p>
                 </aside>
             </section>
-            
-            <footer className="bottom fixed left-0 bottom-0 w-full bg-white p-4">
-                <button
-                    ref={paymentButtonRef}
-                    className="btn w-full text-white bg-coral py-3 rounded"
-                    onClick={handleConfirmOrder}
-                >
-                    ชำระเงิน - ฿ {format(total)}
-                </button>
-                {/* <input
-                    ref={imageUploaderRef}
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    multiple
-                /> */}
+            <div className='payment'>
+                <div className='w-full flex flex-col justify-center items-center mt-8'>
+                    <img src="/icons/promptpay.svg" alt="PromptPay logo" className="w-24 mb-2" />
+                    <div className='qr-code-container h-56 w-56 items-center flex justify-center' style={{ backgroundImage: `url(/icons/cornerBorder.svg)`, backgroundSize: 'cover' }}>
+                        <QRCode id='QRcanvas' value={qrCode} size={180} />
+                    </div>
+                </div>
+                <div className='w-full flex items-center justify-center relative' onClick={downloadQR}>
+                    <img src='/icons/chat-bubble.svg' className='txtbubble h-32 w-56 rotate-180' alt="Chat bubble"></img>
+                    <h1 className='absolute top-1/2 text-white font-bold'>ดาวน์โหลด Qr code</h1>
+                </div>
+                <div className="absolute left-0 right-0 w-100vw h-[10px] bg-[#D9D8DA]" /> <br />
+            </div>
+            <footer className="bottom sticky left-0 bottom-0 w-full bg-white pb-4">
+                <form onSubmit={handleSubmit} encType="multipart/form-data" className="flex flex-row items-center gap-2">
+                    <div className="w-full">
+                        <label htmlFor="file-input" className="flex w-full">
+                            <span className="btn text-white text-md bg-coral w-full py-2 px-4">อัปโหลดรูปภาพ</span>
+                        </label>
+                        <input
+                            id="file-input"
+                            name='image'
+                            type="file"
+                            className="hidden"
+                            onChange={handleFileChange}
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        className="btn bg-coral text-white font-bold w-1/2 py-2 px-4"
+                    >
+                        ส่งสลิปการชำระ
+                    </button>
+                </form>
             </footer>
+            {previewUrl && (
+                <div className="">
+                    <img src={previewUrl} alt="Preview" className="max-w-full h-auto" />
+                </div>
+            )}
         </main>
     )
 }

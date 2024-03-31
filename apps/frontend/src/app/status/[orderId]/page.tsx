@@ -49,11 +49,11 @@ export default function Status() {
         console.log('Orders data has been reset in the browser storage.');
     };
 
-    // useEffect(() => {
-    //     if (orders.length === 0) {
-    //         router.push('/home');
-    //     }
-    // }, [orders, router]);
+    useEffect(() => {
+        if (orders.length === 0) {
+            router.push('/home');
+        }
+    }, [orders, router]);
 
 
     return (
@@ -63,7 +63,7 @@ export default function Status() {
 
             </div>
             <header className="flex-row items-center">
-                <h2 className="text-gray-700">สถานะคำสั่งซื้อของออเดอร์ {"001"}:</h2>
+                <h2 className="text-gray-700">สถานะคำสั่งซื้อของออเดอร์ {orderId}:</h2>
                 <h1 className="text-gray-700 text-xl">
                     {status === 'pending' && 'รอการยืนยันจากร้านค้า'}
                     {status === 'approved' && 'ร้านค้าได้รับคำสั่งซื้อแล้ว'}
