@@ -16,7 +16,7 @@ export default function HomeContent({ menus }: PageProps) {
 
     // const fetchOrder = async () => {
     //     try {
-    //         const response = await axios.get(`http://localhost:3001/getOrderById/${orderId}`);
+    //         const response = await axios.get(`http://localhost:3001/getOrderById/${1}`);
     //         console.log("resQueue: ",response.data)
 
     //     } catch (error) {
