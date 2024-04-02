@@ -10,7 +10,8 @@
     "analyze": "ANALYZE=true next build",
     "export": "next export",
     "test": "jest",
-    "lint": "eslint 'src/**/*.{ts,tsx}'"
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "build:with-lint": "eslint 'src/**/*.{ts,tsx}' && NODE_ENV=production next build"
   },
   "dependencies": {
     "@elysiajs/eden": "^0.7.4",
