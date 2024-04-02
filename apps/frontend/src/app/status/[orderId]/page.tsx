@@ -13,34 +13,44 @@ import axios from 'axios';
 
 const { format } = Intl.NumberFormat('th')
 
-
+interface Menu {
+    menu_name: string;
+    meat: string;
+    spicy: string;
+    egg: string;
+    container: string;
+    optionalText: string;
+    orderMenuStatus: string;
+}
 
 export default function Status() {
     const { orderId } = useParams();
-    const [order, setOrder] = useState([])
+    const [order, setOrder] = useState<Menu[]>([]);
+
     const fetchOrder = async () => {
         try {
             const response = await axios.get(`http://localhost:3001/getOrderById/${orderId}`);
-            setOrder(response.data);
+            setOrder(response.data.orderMenu);
+            setStatus(response.data.orderStatus);
+            console.log("resData", response.data)
         } catch (error) {
             console.error('Error fetching order:', error);
             return [];
         }
-      };
+    };
     useEffect(() => {
         fetchOrder()
-        // console.log(orderId)
-        console.log(order)
-    },[])
-    
-    const [status, setStatus] = useState('pending');
+    }, [])
 
-    // const updateOrderStatus = (approved) => {
-    //     setStatus(approved);
-    // };
+    console.log("orderId:", orderId)
+    console.log("order:", order)
+    const [status, setStatus] = useState('pending');
 
     const [total, prices] = usePrice()
     const router = useRouter()
+    const navigate = (path: string) => {
+        router.push(path);
+    }
     const resetOrders = useResetAtom(orderAtom);
     const [orders, setOrders] = useState(useAtom(orderAtom)[0]);
     const handleResetOrders = () => {
@@ -50,14 +60,19 @@ export default function Status() {
     };
 
     useEffect(() => {
-        if (orders.length === 0) {
-            router.push('/home');
-        }
-    }, [orders, router]);
+        const timeoutId = setTimeout(() => {
+            if (order.length === 0) {
+                router.push('/home');
+            }
+        }, 60000);
+
+        // Clean up function to clear the timeout when the component unmounts
+        return () => clearTimeout(timeoutId);
+    }, [order, router]);
 
 
     return (
-        <main className="flex flex-col gap-2 px-4 h-full w-full">
+        <div className="flex flex-col gap-2 px-4 h-full w-full">
             <div className='flex items-center justify-center py-1 bg-[#D9D8DA]'>
                 <video className='h-48 w-auto object-contain' src='/status/hourglass.mp4' preload="auto" loop autoPlay muted></video>
 
@@ -118,40 +133,33 @@ export default function Status() {
             <section className="flex flex-col gap-3 my-4">
                 <div className="absolute left-0 right-0 w-100vw h-[10px] bg-[#D9D8DA]" /> <br />
                 <h1 className='text-xl'>สรุปคำสั่งซื้อ</h1>
-                {orders.map(({ id, total, options, detail }, index) => {
-                    const menu = menus.find((m) => m.id == id)
-
-                    if (!menu) return null
-
-                    const { title } = menu
+                {order.map((menu, index) => {
 
                     return (
-                        <Fragment key={id + index.toString()}>
+                        <Fragment key={index.toString()}>
 
-                            <article key={title} className="flex gap-2">
+                            <article key={menu.menu_name} className="flex gap-2">
                                 <p className="flex justify-center items-end w-7 h-7 border-2 border-gray-300 text-gray-600 rounded-lg">
-                                    {total}
+                                    {1}
                                 </p>
                                 <header className="flex flex-col">
                                     <h3 className="text-gray-700 text-md">
-                                        {title}
+                                        {menu.menu_name}{menu.meat}
                                     </h3>
                                     <p className="text-gray-500 font-light text-sm">
-                                        {options
-                                            .map(({ value }) => value)
-                                            .join(', ')}
+                                        {menu.spicy} {menu.egg} {menu.container}
                                     </p>
                                     <p className="text-gray-500 font-light text-sm">
-                                        {detail}
+                                        {menu.optionalText}
                                     </p>
                                 </header>
                                 <div className='foodstatus ml-auto'>
-                                    {status === 'pending' && ''}
-                                    {status === 'approved' && <img className='mt-1.5' src="/status/correct.svg" alt="" />}
-                                    {status === 'rejected' && <img className='mt-1.5' src="/status/x.svg" alt="" />}
-                                    {status === 'wait-pay' && ''}
-                                    {status === 'cooking' && 'กำลังเตรียมออเดอร์'}
-                                    {status === 'finished' && <img className='mt-1.5' src="/status/correct.svg" alt="" />}
+                                    {menu.orderMenuStatus === 'pending' && ''}
+                                    {menu.orderMenuStatus === 'approved' && <img className='mt-1.5' src="/status/correct.svg" alt="" />}
+                                    {menu.orderMenuStatus === 'rejected' && <img className='mt-1.5' src="/status/x.svg" alt="" />}
+                                    {menu.orderMenuStatus === 'wait-pay' && ''}
+                                    {menu.orderMenuStatus === 'cooking' && 'กำลังเตรียมออเดอร์'}
+                                    {menu.orderMenuStatus === 'finished' && <img className='mt-1.5' src="/status/correct.svg" alt="" />}
                                 </div>
                             </article>
                         </Fragment>
@@ -159,19 +167,34 @@ export default function Status() {
                 })}
             </section>
             <footer className="absolute left-0 bottom-0 bg-white w-full py-4 px-4 mt-4">
-                <button
-                    className="btn w-full text-white text-md bg-coral py-3 rounded mb-2"
-                    disabled={false}
-                    onClick={() => router.push('/payment')}
-                >
-                    ชำระเงิน - ฿ {format(total)}
-                </button>
-                <button
-                    onClick={() => (document.getElementById('cancelModal') as HTMLDialogElement).showModal()}
-                    className="btn w-full text-white text-md bg-coral py-3 rounded"
-                >
-                    ยกเลิกคำสั่งซื้อ
-                </button>
+                {status == 'pending' &&
+                    <>
+                        <button
+                            className="btn w-full text-white text-md bg-coral py-3 rounded mb-2"
+                            disabled={false}
+                            onClick={() => router.push(`/payment/${orderId}`)}
+                        >
+                            ชำระเงิน - ฿ {format(total)}
+                        </button><button
+                            onClick={() => (document.getElementById('cancelModal') as HTMLDialogElement).showModal()}
+                            className="btn w-full text-white text-md bg-coral py-3 rounded"
+                        >
+                            ยกเลิกคำสั่งซื้อ
+                        </button>
+                    </>
+                }
+
+                {status == 'finished' &&
+                    <>
+                        <button
+                            className="btn w-full text-white text-md bg-coral py-3 rounded mb-2"
+                            disabled={false}
+                            onClick={() => router.push(`/home`)}
+                        >
+                            กลับไปหน้าแรก
+                        </button>
+                    </>
+                }
             </footer>
 
             <dialog id="cancelModal" className="modal">
@@ -185,6 +208,6 @@ export default function Status() {
                     </div>
                 </div>
             </dialog>
-        </main>
+        </div>
     )
 }

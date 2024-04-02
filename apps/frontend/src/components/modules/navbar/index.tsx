@@ -1,23 +1,33 @@
 'use client'
 
-import { OrderProvider } from '@app/home/OrderContext/page'
+import { OrderContext, OrderProvider } from '@app/home/OrderContext/page'
 import axios from 'axios'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 
 interface NavbarProps {
     setSearchQuery?: (query: string) => void
 }
 
+interface QueueItem {
+    menu: string;
+    menu_id: string;
+    spicy: string;
+    quantity: number;
+    optional_text: string;
+  }
+
 export default function Navbar({ setSearchQuery }: NavbarProps) {
-    const [queueData, setQueueData] = useState([]);
+    const [queueData, setQueueData] = useState<QueueItem[]>([]);
     const path = usePathname()
+    const { queueData:selectedQueue, setQueueData:setSelectedQueue } = useContext(OrderContext);
 
     const fetchQueueData = async () => {
         try {
             const response = await axios.get('http://localhost:3001/getQueue/');
             const data = response.data;
+            // console.log("queue: ",data)
             setQueueData(data);
         } catch (error) {
             console.error('Error fetching queue data:', error);
@@ -34,7 +44,6 @@ export default function Navbar({ setSearchQuery }: NavbarProps) {
         setSearchQuery?.(e.target.value)
     }
     return (
-        <OrderProvider>
             <nav className="sticky z-50 top-0 flex flex-col bg-white border-b shadow shadow-gray-200/50 px-3">
                 <header className="flex justify-between items-center w-full h-14">
                     <Link href="/home">
@@ -109,7 +118,7 @@ export default function Navbar({ setSearchQuery }: NavbarProps) {
                                                     <p className="text-gray-600">
                                                         {queue.menu.split(' ').slice(1).join(' ')} {queue.spicy} {queue.optional_text}
                                                     </p>
-                                                    {index > 1 ? <Link href={`/menu/${queue.menu_id}`} className="text-coral">
+                                                    {index > 1 ? <Link href={`/menu/${queue.menu_id}`} onClick={()=>{setSelectedQueue(queue)}} className="text-coral">
                                                         เพิ่มเมนูตาม
                                                     </Link>
                                                         :
@@ -138,6 +147,5 @@ export default function Navbar({ setSearchQuery }: NavbarProps) {
                     </div>
                 </dialog>
             </nav>
-        </OrderProvider>
     )
 }

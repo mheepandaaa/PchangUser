@@ -13,7 +13,7 @@ import { atomWithStorage } from 'jotai/utils';
 
 const { format } = Intl.NumberFormat('th')
 const generatePayload = require('promptpay-qr');
-let orderId: string | number;
+let orderId: number;
 
 const orderIdsAtom = atomWithStorage<(string | number)[]>('orderIds', []);
 export function useOrderIds() {
@@ -42,99 +42,13 @@ export default function Order() {
     const [file, setFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            const selectedFile = e.target.files[0];
-            setFile(selectedFile);
-
-            // Create a temporary URL for the selected file
-            const objectUrl = URL.createObjectURL(selectedFile);
-            setPreviewUrl(objectUrl);
-        } else {
-            setFile(null);
-            setPreviewUrl(null);
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        if (!file) {
-            alert('Please select an image to upload');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const response = await fetch('http://localhost:3001/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                // Check if the response is an HTML document
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('text/html')) {
-                    const errorText = await response.text();
-                    console.error('Error uploading file:', errorText);
-                    alert('An error occurred while uploading the file');
-                } else {
-                    // Handle other non-JSON responses
-                    console.error('Error uploading file:', response.statusText);
-                    alert(`Error uploading file: ${response.statusText}`);
-                }
-                return;
-            }
-
-            const data = await response.json();
-            const { fileUrl } = data;
-            console.log('Uploaded file URL:', fileUrl);
-
-            if (response.ok) {
-                const { fileUrl } = data;
-                console.log('Uploaded file URL:', fileUrl);
-                fetch("http://localhost:3001/addPayment", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            order_id: orderId,
-                            payment_picture: fileUrl,
-                            total_price: [total]
-                        })
-                    })
-                    // router.replace(`/status/${orderId}`)
-            } else {
-                console.error('Error uploading file:', data.error);
-            }
-        } catch (err) {
-            console.error('Error uploading file:', err);
-        }
-    };
-
-    // Clean up the temporary URL when the component unmounts
-    React.useEffect(() => {
-        return () => {
-            if (previewUrl) {
-                URL.revokeObjectURL(previewUrl);
-            }
-        };
-    }, [previewUrl]);
-
-    function handleQR() {
-        setqrCode(generatePayload("012-345-6789", { amount: total }));
-    }
-    useEffect(() => {
-        handleQR();
-    }, [total]);
-
     const handleOrder = async (OrderData: any[]) => {
         const output = OrderData.map(data => {
             const options = data.options.reduce((acc: { [x: string]: any; }, curr: { name: string | number; value: any; }) => {
                 acc[curr.name] = curr.value;
                 return acc;
             }, {});
-
+            console.log("data",data)
             const menu = {
                 menu_id: data.id,
                 meat: options['ประเภทเนื้อสัตว์'] || '',
@@ -142,10 +56,12 @@ export default function Order() {
                 extra: false,
                 egg: options['เพิ่มไข่'] || '',
                 optional_text: data.detail || '',
-                container: options['ภาชนะ'] || ''
+                container: options['ภาชนะ'] || '',
+                price: prices
             };
             return Array(data.total).fill(menu);
         }).flat();
+        console.log("output",output);
         const body = {
             menu: output
         };
@@ -172,6 +88,7 @@ export default function Order() {
     const handleConfirmOrder = async () => {
         try {
             await handleOrder(orders);
+            console.log("orders",orders)
             router.replace(`/status/${orderId}`);
             console.log('gogogo')
         } catch (e) {
@@ -181,7 +98,7 @@ export default function Order() {
     }
 
     return (
-        <main className="flex flex-col gap-2 p-4">
+        <div className="flex flex-col gap-2 p-4 h-screen">
             <header className="flex justify-between items-center">
                 <h1 className="text-2xl text-gray-700">สรุปยอด</h1>
                 <Link className='text-coral' href="/home">เพิ่มออเดอร์ &gt;</Link>
@@ -234,46 +151,15 @@ export default function Order() {
                     <p>฿ {format(total)}</p>
                 </aside>
             </section>
-            <div className='payment'>
-                <div className='w-full flex flex-col justify-center items-center mt-8'>
-                    <img src="/icons/promptpay.svg" alt="PromptPay logo" className="w-24 mb-2" />
-                    <div className='qr-code-container h-56 w-56 items-center flex justify-center' style={{ backgroundImage: `url(/icons/cornerBorder.svg)`, backgroundSize: 'cover' }}>
-                        <QRCode id='QRcanvas' value={qrCode} size={180} />
-                    </div>
-                </div>
-                <div className='w-full flex items-center justify-center relative' onClick={downloadQR}>
-                    <img src='/icons/chat-bubble.svg' className='txtbubble h-32 w-56 rotate-180' alt="Chat bubble"></img>
-                    <h1 className='absolute top-1/2 text-white font-bold'>ดาวน์โหลด Qr code</h1>
-                </div>
-                <div className="absolute left-0 right-0 w-100vw h-[10px] bg-[#D9D8DA]" /> <br />
-            </div>
-            <footer className="bottom sticky left-0 bottom-0 w-full bg-white pb-4">
-                <form onSubmit={handleSubmit} encType="multipart/form-data" className="flex flex-row items-center gap-2">
-                    <div className="w-full">
-                        <label htmlFor="file-input" className="flex w-full">
-                            <span className="btn text-white text-md bg-coral w-full py-2 px-4">อัปโหลดรูปภาพ</span>
-                        </label>
-                        <input
-                            id="file-input"
-                            name='image'
-                            type="file"
-                            className="hidden"
-                            onChange={handleFileChange}
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="btn bg-coral text-white font-bold w-1/2 py-2 px-4"
-                    >
-                        ส่งสลิปการชำระ
-                    </button>
-                </form>
+            <footer className=" sticky bottom left-0 bottom-0 w-full bg-white">
+                <button
+                    className="btn w-full text-white bg-coral py-3"
+                    onClick={handleConfirmOrder}
+                >
+                    ชำระเงิน - ฿ {format(total)}
+                </button>
+
             </footer>
-            {previewUrl && (
-                <div className="">
-                    <img src={previewUrl} alt="Preview" className="max-w-full h-auto" />
-                </div>
-            )}
-        </main>
+        </div>
     )
 }
