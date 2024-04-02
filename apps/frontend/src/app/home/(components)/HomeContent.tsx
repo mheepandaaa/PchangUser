@@ -2,14 +2,31 @@
 import { Card, Navbar, ViewOrder } from "@components/modules";
 import { Menu } from "@services/data"
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { useOrderIds } from "@app/order/page";
+import axios from "axios";
 interface PageProps {
     menus: Menu[];
 }
 
 export default function HomeContent({ menus }: PageProps) {
+
+
+
+    const fetchOrder = async () => {
+        try {
+            const response = await axios.get(`http://localhost:3001/getOrder/}`);
+            console.log("resQueue", response.data)
+        } catch (error) {
+            console.error('Error fetching order:', error);
+            return [];
+        }
+    };
+    useEffect(() => {
+        fetchOrder()
+    }, [])
+
     const router = useRouter()
     const orderIdList = useOrderIds()
     console.log("orderId", orderIdList)
