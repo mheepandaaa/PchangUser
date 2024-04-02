@@ -1,10 +1,8 @@
 'use client'
 
 import { saveAs } from 'file-saver';
-import QRCode from 'qrcode.react';
-import React, { useRef, useState, Fragment, useEffect } from 'react';
+import React, {  useState, Fragment } from 'react';
 import { useRouter } from 'next/navigation'
-
 import Link from 'next/link'
 import { useOrder, usePrice } from '@stores/order'
 import { menus } from '@services/data'
@@ -12,7 +10,6 @@ import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
 const { format } = Intl.NumberFormat('th')
-const generatePayload = require('promptpay-qr');
 let orderId: number;
 
 const orderIdsAtom = atomWithStorage<(string | number)[]>('orderIds', []);
