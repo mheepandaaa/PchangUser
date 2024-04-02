@@ -10,7 +10,7 @@ const pwaConfig = require('./tools/withPwa')
 
 module.exports = withPlugins(
     [
-        // [withPwa, pwaConfig]
+        // [withPwa, pwaConfig] // Commented out if not using PWA plugin
         [withAnalyze]
     ],
     {
@@ -48,14 +48,23 @@ module.exports = withPlugins(
                 '@': __dirname
             }
 
+            // Add the following line to ignore ESLint warnings during builds:
+            config.module.rules.push({
+                test: /\.(js|jsx|ts|tsx)$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'eslint-loader',
+                    options: {
+                        ignoreDuringBuilds: true // Set to true to ignore ESLint warnings
+                    }
+                }
+            })
+
             return config
         },
         i18n: {
             locales: ['en-US'],
             defaultLocale: 'en-US'
         },
-        eslint: {
-            ignoreDuringBuilds: true,
-        }
     }
 )
