@@ -14,18 +14,19 @@ export default function HomeContent({ menus }: PageProps) {
 
 
 
-    const fetchOrder = async () => {
-        try {
-            const response = await axios.get(`http://localhost:3001/getOrder/}`);
-            console.log("resQueue", response.data)
-        } catch (error) {
-            console.error('Error fetching order:', error);
-            return [];
-        }
-    };
-    useEffect(() => {
-        fetchOrder()
-    }, [])
+    // const fetchOrder = async () => {
+    //     try {
+    //         const response = await axios.get(`http://localhost:3001/getOrderById/${orderId}`);
+    //         console.log("resQueue: ",response.data)
+
+    //     } catch (error) {
+    //         console.error('Error fetching order:', error);
+    //         return [];
+    //     }
+    // };
+    // useEffect(() => {
+    //     fetchOrder()
+    // }, [])
 
     const router = useRouter()
     const orderIdList = useOrderIds()
