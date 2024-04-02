@@ -203,7 +203,7 @@ export default function payment() {
                     </div>
                 </div>
                 <div className='w-full flex items-center justify-center relative' onClick={downloadQR}>
-                    <img src='/icons/chat-bubble.svg' className='txtbubble h-32 w-56 rotate-180' alt="Chat bubble"></img>
+                    <img src='/icons/chat-bubble.svg' className='txtbubble h-32 w-56 rotate-180' alt="Chat bubble" />
                     <h1 className='absolute top-1/2 text-white font-bold'>ดาวน์โหลด Qr code</h1>
                 </div>
                 <div className="absolute left-0 right-0 w-100vw h-[10px] bg-[#D9D8DA]" /> <br />

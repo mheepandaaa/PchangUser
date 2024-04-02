@@ -1,7 +1,6 @@
 import { type Menu, menus } from '@services/data'
-import { order } from 'backend/src/controllers/order'
 import { atom, useAtom } from 'jotai'
-import { atomWithStorage, useResetAtom } from 'jotai/utils'
+import { atomWithStorage } from 'jotai/utils'
 
 interface OrderOptions {
     name: string

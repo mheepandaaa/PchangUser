@@ -74,7 +74,7 @@ export default function Status() {
     return (
         <div className="flex flex-col gap-2 px-4 h-full w-full">
             <div className='flex items-center justify-center py-1 bg-[#D9D8DA]'>
-                <video className='h-48 w-auto object-contain' src='/status/hourglass.mp4' preload="auto" loop autoPlay muted></video>
+                <video className='h-48 w-auto object-contain' src='/status/hourglass.mp4' preload="auto" loop autoPlay muted />
 
             </div>
             <header className="flex-row items-center">
@@ -100,11 +100,11 @@ export default function Status() {
                 </div>
                 <div className="w-12 h-2 bg-statusbg rounded-full overflow-hidden">
                     {status === 'pending' || status === 'wait-pay' || status === 'rejected' ? (
-                        <div className="h-full"></div>
-                    ) : <div className="h-full"></div>}
-                    {status === 'approved' && <div className="h-full bg-coral animate-left-to-right"></div>}
+                        <div className="h-full" />
+                    ) : <div className="h-full" />}
+                    {status === 'approved' && <div className="h-full bg-coral animate-left-to-right" />}
                     {status === 'cooking' || status === 'finished' ? (
-                        <div className="h-full bg-coral"></div>
+                        <div className="h-full bg-coral" />
                     ) : ''}
                 </div>
                 <div className="flex w-16 h-16 rounded bg-statusbg items-center justify-center">
@@ -116,11 +116,11 @@ export default function Status() {
                 </div>
                 <div className="w-12 h-2 bg-statusbg rounded-full overflow-hidden">
                     {status === 'pending' || status === 'wait-pay' || status === 'rejected' || status === 'approved' ? (
-                        <div className="h-full"></div>
-                    ) : <div className="h-full"></div>}
-                    {status === 'cooking' && <div className="h-full bg-coral animate-left-to-right"></div>}
+                        <div className="h-full" />
+                    ) : <div className="h-full" />}
+                    {status === 'cooking' && <div className="h-full bg-coral animate-left-to-right" />}
                     {status === 'finished' || status === 'finished' ? (
-                        <div className="h-full bg-coral"></div>
+                        <div className="h-full bg-coral" />
                     ) : ''}
                 </div>
                 <div className="flex w-16 h-16 rounded bg-statusbg items-center justify-center">
@@ -185,15 +185,13 @@ export default function Status() {
                 }
 
                 {status == 'finished' &&
-                    <>
-                        <button
+                    <button
                             className="btn w-full text-white text-md bg-coral py-3 rounded mb-2"
                             disabled={false}
                             onClick={() => router.push(`/home`)}
                         >
                             กลับไปหน้าแรก
                         </button>
-                    </>
                 }
             </footer>
 

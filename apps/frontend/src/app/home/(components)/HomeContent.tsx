@@ -1,4 +1,5 @@
 'use client'
+
 import { Card, Navbar, ViewOrder } from "@components/modules";
 import { Menu } from "@services/data"
 import Link from "next/link";
@@ -6,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { useOrderIds } from "@app/order/page";
 import axios from "axios";
+
 interface PageProps {
     menus: Menu[];
 }
